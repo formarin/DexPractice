@@ -1,0 +1,2 @@
+1723489⁂14.11.1999 0:00:00⁂Carter⁂John⁂BankSystem.Services.Rup⁂10000⁂BankSystem.Services.Eur⁂15⁂
+4826480⁂12.12.1988 0:00:00⁂Lee⁂Rebecca⁂BankSystem.Services.Mdl⁂1000⁂
