@@ -1,5 +1,7 @@
 ﻿using BankSystem.Exceptions;
 using BankSystem.Models;
+using Bogus;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,8 +14,7 @@ namespace BankSystem.Services
         public List<Employee> EmployeeList { get; set; }
         public Dictionary<Client, List<Account>> ClientsAndAccountsList { get; set; }
 
-        public string path = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem");
-        private string strSepar = "⁂";
+        public string path = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder");
 
         public delegate double ExchangeHandler<Currency>(double MoneyAmount, Currency Curr1, Currency Curr2);
         private ExchangeHandler<Currency> _exchangeHandler;
@@ -71,19 +72,13 @@ namespace BankSystem.Services
             if (person is Client)
             {
                 var client = person as Client;
-                if (!ClientList.Contains(client))
+                string serClient;
+                if (FindClient(client) == null)
                 {
-                    ClientList.Add(client);
-                    Console.WriteLine("Registeration completed successfully.");
-
-                    DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                    directoryInfo.Create();
-
-                    var text = ($"{client.PassportId}{strSepar}{client.BirthDate}{strSepar}{client.Surname}{strSepar}{client.Name}\n");
-                    using (FileStream fileStream = new FileStream($"{path}\\ListOfClients.txt", FileMode.Append))
+                    serClient = JsonConvert.SerializeObject(client);
+                    using (var streamWriter = new StreamWriter($"{path}\\ListOfClients.txt"))
                     {
-                        byte[] array = System.Text.Encoding.Default.GetBytes(text);
-                        fileStream.Write(array, 0, array.Length);
+                        streamWriter.Write(JsonConvert.SerializeObject(serClient));
                     }
                 }
                 else
@@ -94,19 +89,13 @@ namespace BankSystem.Services
             else
             {
                 var employee = person as Employee;
-                if (!EmployeeList.Contains(person as Employee))
+                string serEmployee;
+                if (FindEmployee(employee) == null)
                 {
-                    EmployeeList.Add(person as Employee);
-                    Console.WriteLine("Registeration completed successfully.");
-
-                    DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                    directoryInfo.Create();
-
-                    var text = ($"{employee.PassportId}{strSepar}{employee.BirthDate}{strSepar}{employee.Surname}{strSepar}{employee.Name}{strSepar}{employee.Position}\n");
-                    using (FileStream fileStream = new FileStream($"{path}\\ListOfEmployees.txt", FileMode.Append))
+                    serEmployee = JsonConvert.SerializeObject(employee);
+                    using (var streamWriter = new StreamWriter($"{path}\\ListOfEmployees.txt"))
                     {
-                        byte[] array = System.Text.Encoding.Default.GetBytes(text);
-                        fileStream.Write(array, 0, array.Length);
+                        streamWriter.Write(JsonConvert.SerializeObject(serEmployee));
                     }
                 }
                 else
@@ -116,83 +105,42 @@ namespace BankSystem.Services
             }
         }
 
-        public void DictionaryToFile(Dictionary<Client, List<Account>> dict)
+        public Client GenerateClient()
         {
-            foreach (var pair in dict)
+            return new Faker<Client>("en")
+                .RuleFor(x => x.PassportId, f => f.Random.Int(1000000, 9999999))
+                .RuleFor(x => x.BirthDate, f => f.Person.DateOfBirth)
+                .RuleFor(x => x.Name, f => f.Person.FirstName)
+                .RuleFor(x => x.Surname, f => f.Person.LastName);
+        }
+
+        public Employee GenerateEmployee()
+        {
+            return new Faker<Employee>("en")
+                .RuleFor(x => x.PassportId, f => f.Random.Int(1000000, 9999999))
+                .RuleFor(x => x.BirthDate, f => f.Person.DateOfBirth)
+                .RuleFor(x => x.Name, f => f.Person.FirstName)
+                .RuleFor(x => x.Surname, f => f.Person.LastName)
+                .RuleFor(x => x.Position, f => f.Name.JobTitle());
+        }
+
+        public void AddDictionaryToFile(Dictionary<Client, List<Account>> dict, string dictPath)
+        {
+            using (var streamWriter = new StreamWriter(dictPath))
             {
-                DirectoryInfo directoryInfo = new DirectoryInfo(path);
-                directoryInfo.Create();
-
-                var text = $"{pair.Key.PassportId}{strSepar}{pair.Key.BirthDate}{strSepar}{pair.Key.Surname}{strSepar}{pair.Key.Name}{strSepar}";
-                foreach (var account in pair.Value)
-                {
-                    text += $"{account.CurrencyType}{strSepar}{account.CurrencyAmount}{strSepar}";
-                }
-                text += "\n";
-
-                using (FileStream fileStream = new FileStream($"{path}\\ClientsAndAccountsDictionary.txt", FileMode.Append))
-                {
-                    byte[] array = System.Text.Encoding.Default.GetBytes(text);
-                    fileStream.Write(array, 0, array.Length);
-                }
+                streamWriter.Write(JsonConvert.SerializeObject(dict));
             }
         }
 
-        public Dictionary<Client, List<Account>> DictionaryFromFile(string path)
+        public Dictionary<Client, List<Account>> GetDictionaryFromFile(string dictPath)
         {
-            var _dict = new Dictionary<Client, List<Account>>();
-            string readText;
-
-            using (FileStream fileStream = File.OpenRead($"{path}\\ClientsAndAccountsDictionary.txt"))
+            using (var streamReader = new StreamReader(dictPath))
             {
-                byte[] array = new byte[fileStream.Length];
-                fileStream.Read(array, 0, array.Length);
-                readText = System.Text.Encoding.Default.GetString(array);
+                /*Newtonsoft.Json.JsonSerializationException: "Could not convert string 'BankSystem.Models.Client'
+                to dictionary key type 'BankSystem.Models.Client'.*/
+                var desDict = JsonConvert.DeserializeObject<Dictionary<Client, List<Account>>>(streamReader.ReadToEnd());
+                return desDict;
             }
-
-            string[] arr = readText.Split('\n');
-            for (int i = 0; i < arr.Length; i++)
-            {
-                string[] arr2 = arr[i].Split(strSepar);
-
-                if (arr2[0] == "")
-                {
-                    break;
-                }
-                else
-                {
-                    var client = new Client
-                    {
-                        PassportId = Convert.ToInt32(arr2[0]),
-                        BirthDate = Convert.ToDateTime(arr2[1]),
-                        Surname = arr2[2],
-                        Name = arr2[3]
-                    };
-
-                    var list = new List<Account>();
-                    for (int j = 0, k = 4; j < (Convert.ToInt32(arr2.Length) - 4) / 2; j++, k += 2)
-                    {
-                        var account = new Account() { CurrencyAmount = Convert.ToDouble(arr2[k + 1]) };
-                        var CurrType = arr2[k];
-                        if (CurrType.Substring(CurrType.Length - 3) == "Rup")
-                        {
-                            account.CurrencyType = new Rup();
-                        }
-                        else if (CurrType.Substring(CurrType.Length - 3) == "Mdl")
-                        {
-                            account.CurrencyType = new Mdl();
-                        }
-                        else if (CurrType.Substring(CurrType.Length - 3) == "Eur")
-                        {
-                            account.CurrencyType = new Eur();
-                        }
-                        list.Add(account);
-                    }
-                    _dict.Add(client, list);
-                }
-            }
-
-            return _dict;
         }
 
         public Employee FindEmployee(Employee employee)
@@ -207,80 +155,59 @@ namespace BankSystem.Services
 
         private IPerson Find<U>(U person) where U : IPerson
         {
-            string readText;
             if (person is Client)
             {
-                var list = new List<Client>();
+                var client = person as Client;
+                List<Client> desClientList;
 
-                using (FileStream fileStream = File.OpenRead($"{path}\\ListOfClients.txt"))
+                var directoryInfo = new DirectoryInfo($"{path}\\ListOfClients.txt");
+                if (!directoryInfo.Exists)
                 {
-                    byte[] array = new byte[fileStream.Length];
-                    fileStream.Read(array, 0, array.Length);
-                    readText = System.Text.Encoding.Default.GetString(array);
+                    directoryInfo.Create();
                 }
 
-                string[] arr = readText.Split('\n');
-                for (int i = 0; i < arr.Length; i++)
+                /*System.UnauthorizedAccessException: "Access to the path
+                'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfClients.txt' is denied."*/
+                using (var streamReader = new StreamReader($"{path}\\ListOfClients.txt"))
                 {
-                    string[] arr2 = arr[i].Split(strSepar);
-
-                    if (arr2[0] == "")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        var client = new Client
-                        {
-                            PassportId = Convert.ToInt32(arr2[0]),
-                            BirthDate = Convert.ToDateTime(arr2[1]),
-                            Surname = arr2[2],
-                            Name = arr2[3]
-                        };
-
-                        list.Add(client);
-                    }
+                    desClientList = JsonConvert.DeserializeObject<List<Client>>(streamReader.ReadToEnd());
                 }
 
-                return list.Find(item => item.PassportId == person.PassportId);
+                foreach (var item in desClientList) 
+                {
+                    if (item.PassportId == client.PassportId)
+                    {
+                        return item;
+                    }
+                }
             }
-            else if (person is Employee)
+            else
             {
-                var list = new List<Employee>();
+                var employee = person as Employee;
+                List<Employee> desEmployeeList;
 
-                using (FileStream fileStream = File.OpenRead($"{path}\\ListOfEmployees.txt"))
+                var directoryInfo = new DirectoryInfo($"{path}\\ListOfEmployees.txt");
+                if (!directoryInfo.Exists)
                 {
-                    byte[] array = new byte[fileStream.Length];
-                    fileStream.Read(array, 0, array.Length);
-                    readText = System.Text.Encoding.Default.GetString(array);
+                    directoryInfo.Create();
                 }
 
-                string[] arr = readText.Split('\n');
-                for (int i = 0; i < arr.Length; i++)
+                /*System.UnauthorizedAccessException: "Access to the path
+                'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfEmployees.txt' is denied."*/
+                using (var streamReader = new StreamReader($"{path}\\ListOfEmployees.txt"))
                 {
-                    string[] arr2 = arr[i].Split(strSepar);
-
-                    if (arr2[0] == "")
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        var employee = new Employee
-                        {
-                            PassportId = Convert.ToInt32(arr2[0]),
-                            BirthDate = Convert.ToDateTime(arr2[1]),
-                            Surname = arr2[2],
-                            Name = arr2[3],
-                            Position= arr2[4]
-                        };
-
-                        list.Add(employee);
-                    }
+                    desEmployeeList = JsonConvert.DeserializeObject<List<Employee>>(streamReader.ReadToEnd());
                 }
 
-                return list.Find(item => item.PassportId == person.PassportId);
+                foreach (var item in desEmployeeList)
+                {
+                    if (item.PassportId == employee.PassportId)
+                    {
+                        return item;
+                    }
+                }
             }
+
             return null;
         }
     }

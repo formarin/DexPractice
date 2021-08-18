@@ -1,5 +1,8 @@
-﻿namespace BankSystem.Services
+﻿using System;
+
+namespace BankSystem.Services
 {
+    [Serializable]
     public class Currency
     {
         public double Rate { get; set; }

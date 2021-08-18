@@ -1,0 +1,1 @@
+{"BankSystem.Models.Client":[{"CurrencyType":{"Rate":0.062},"CurrencyAmount":10000.0},{"CurrencyType":{"Rate":1.19},"CurrencyAmount":15.0}],"BankSystem.Models.Client":[{"CurrencyType":{"Rate":0.056},"CurrencyAmount":1000.0}]}

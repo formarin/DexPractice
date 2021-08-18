@@ -6,4 +6,11 @@
     <RootNamespace>Bank_Sistem</RootNamespace>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Bogus" Version="33.0.2" />
+    <PackageReference Include="EcoCore" Version="7.0.0.13375" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="SoapFormatter" Version="1.0.11" />
+  </ItemGroup>
+
 </Project>

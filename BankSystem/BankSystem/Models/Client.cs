@@ -2,6 +2,7 @@
 
 namespace BankSystem.Models
 {
+    [Serializable]
     public class Client : IPerson
     {
         public int PassportId { get; set; }
