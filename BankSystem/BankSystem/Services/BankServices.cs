@@ -1,6 +1,5 @@
 ﻿using BankSystem.Exceptions;
 using BankSystem.Models;
-using Bogus;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -10,15 +9,15 @@ namespace BankSystem.Services
 {
     public class BankServices<T> where T : IPerson
     {
-        public List<Client> ClientList { get; set; }
-        public List<Employee> EmployeeList { get; set; }
-        public Dictionary<Client, List<Account>> ClientsAndAccountsList { get; set; }
+        public List<Client> clientList { get; set; }
+        public List<Employee> employeeList { get; set; }
+        public Dictionary<String, List<Account>> clientsAndAccountsList { get; set; }
 
         public string path = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder");
 
-        public delegate double ExchangeHandler<Currency>(double MoneyAmount, Currency Curr1, Currency Curr2);
-        private ExchangeHandler<Currency> _exchangeHandler;
-        public void DelegateRegister(ExchangeHandler<Currency> exchangeHandler)
+        public delegate double exchangeHandler<Currency>(double MoneyAmount, Currency Curr1, Currency Curr2);
+        private exchangeHandler<Currency> _exchangeHandler;
+        public void DelegateRegister(exchangeHandler<Currency> exchangeHandler)
         {
             try
             {
@@ -34,7 +33,7 @@ namespace BankSystem.Services
             }
         }
 
-        public void MoneyTransfer(int sum, Account donorAccount, Account recipientAccount, ExchangeHandler<Currency> _exchangeHandler)
+        public void MoneyTransfer(int sum, Account donorAccount, Account recipientAccount, exchangeHandler<Currency> _exchangeHandler)
         {
             var _exch = new Exchange();
             if (donorAccount.CurrencyAmount >= sum)
@@ -50,9 +49,9 @@ namespace BankSystem.Services
 
         public void AddAccount(Client client, Account account)
         {
-            if (ClientsAndAccountsList.ContainsKey(client))
+            if (clientsAndAccountsList.ContainsKey(client.PassportId))
             {
-                ClientsAndAccountsList[client].Add(account);
+                clientsAndAccountsList[client.PassportId].Add(account);
             }
             else
             {
@@ -62,7 +61,7 @@ namespace BankSystem.Services
                 }
                 else
                 {
-                    ClientsAndAccountsList.Add(client, new List<Account> { account });
+                    clientsAndAccountsList.Add(client.PassportId, new List<Account> { account });
                 }
             }
         }
@@ -105,26 +104,7 @@ namespace BankSystem.Services
             }
         }
 
-        public Client GenerateClient()
-        {
-            return new Faker<Client>("en")
-                .RuleFor(x => x.PassportId, f => f.Random.Int(1000000, 9999999))
-                .RuleFor(x => x.BirthDate, f => f.Person.DateOfBirth)
-                .RuleFor(x => x.Name, f => f.Person.FirstName)
-                .RuleFor(x => x.Surname, f => f.Person.LastName);
-        }
-
-        public Employee GenerateEmployee()
-        {
-            return new Faker<Employee>("en")
-                .RuleFor(x => x.PassportId, f => f.Random.Int(1000000, 9999999))
-                .RuleFor(x => x.BirthDate, f => f.Person.DateOfBirth)
-                .RuleFor(x => x.Name, f => f.Person.FirstName)
-                .RuleFor(x => x.Surname, f => f.Person.LastName)
-                .RuleFor(x => x.Position, f => f.Name.JobTitle());
-        }
-
-        public void AddDictionaryToFile(Dictionary<Client, List<Account>> dict, string dictPath)
+        public void AddDictionaryToFile(Dictionary<string, List<Account>> dict, string dictPath)
         {
             using (var streamWriter = new StreamWriter(dictPath))
             {
@@ -132,13 +112,11 @@ namespace BankSystem.Services
             }
         }
 
-        public Dictionary<Client, List<Account>> GetDictionaryFromFile(string dictPath)
+        public Dictionary<string, List<Account>> GetDictionaryFromFile(string dictPath)
         {
             using (var streamReader = new StreamReader(dictPath))
             {
-                /*Newtonsoft.Json.JsonSerializationException: "Could not convert string 'BankSystem.Models.Client'
-                to dictionary key type 'BankSystem.Models.Client'.*/
-                var desDict = JsonConvert.DeserializeObject<Dictionary<Client, List<Account>>>(streamReader.ReadToEnd());
+                var desDict = JsonConvert.DeserializeObject<Dictionary<string, List<Account>>>(streamReader.ReadToEnd());
                 return desDict;
             }
         }
@@ -159,56 +137,44 @@ namespace BankSystem.Services
             {
                 var client = person as Client;
                 List<Client> desClientList;
+                var clientListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder", "ListOfClients.txt");
 
-                var directoryInfo = new DirectoryInfo($"{path}\\ListOfClients.txt");
+                var directoryInfo = new DirectoryInfo(clientListPath);
                 if (!directoryInfo.Exists)
                 {
                     directoryInfo.Create();
                 }
 
-                /*System.UnauthorizedAccessException: "Access to the path
-                'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfClients.txt' is denied."*/
-                using (var streamReader = new StreamReader($"{path}\\ListOfClients.txt"))
+                /*System.UnauthorizedAccessException: "Access to the path 
+                 * 'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfClients.txt' is denied."*/
+                using (var streamReader = new StreamReader(clientListPath))
                 {
                     desClientList = JsonConvert.DeserializeObject<List<Client>>(streamReader.ReadToEnd());
                 }
 
-                foreach (var item in desClientList) 
-                {
-                    if (item.PassportId == client.PassportId)
-                    {
-                        return item;
-                    }
-                }
+                return desClientList.Find(item => item.PassportId == person.PassportId);
             }
             else
             {
                 var employee = person as Employee;
                 List<Employee> desEmployeeList;
+                var employeeListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder", "ListOfEmployees.txt");
 
-                var directoryInfo = new DirectoryInfo($"{path}\\ListOfEmployees.txt");
+                var directoryInfo = new DirectoryInfo(employeeListPath);
                 if (!directoryInfo.Exists)
                 {
                     directoryInfo.Create();
                 }
 
-                /*System.UnauthorizedAccessException: "Access to the path
-                'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfEmployees.txt' is denied."*/
-                using (var streamReader = new StreamReader($"{path}\\ListOfEmployees.txt"))
+                /*System.UnauthorizedAccessException: "Access to the path 
+                 * 'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfEmployees.txt' is denied."*/
+                using (var streamReader = new StreamReader(employeeListPath))
                 {
                     desEmployeeList = JsonConvert.DeserializeObject<List<Employee>>(streamReader.ReadToEnd());
                 }
 
-                foreach (var item in desEmployeeList)
-                {
-                    if (item.PassportId == employee.PassportId)
-                    {
-                        return item;
-                    }
-                }
+                return desEmployeeList.Find(item => item.PassportId == person.PassportId);
             }
-
-            return null;
         }
     }
 }

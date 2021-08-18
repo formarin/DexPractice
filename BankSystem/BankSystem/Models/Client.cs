@@ -5,7 +5,7 @@ namespace BankSystem.Models
     [Serializable]
     public class Client : IPerson
     {
-        public int PassportId { get; set; }
+        public string PassportId { get; set; }
         public string Surname { get; set; }
         public string Name { get; set; }
         public DateTime BirthDate { get; set; }
@@ -34,7 +34,7 @@ namespace BankSystem.Models
 
         public override int GetHashCode()
         {
-            return PassportId;
+            return PassportId.GetHashCode();
         }
     }
 }
