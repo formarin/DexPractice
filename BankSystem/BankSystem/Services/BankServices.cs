@@ -13,7 +13,8 @@ namespace BankSystem.Services
         public List<Employee> employeeList { get; set; }
         public Dictionary<String, List<Account>> clientsAndAccountsList { get; set; }
 
-        public string path = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder");
+        public string path = Path.Combine("C:", "Users", "Irina", "source",
+          "repos", "DexPractice", "FileFolder");
 
         public delegate double exchangeHandler<Currency>(double MoneyAmount, Currency Curr1, Currency Curr2);
         private exchangeHandler<Currency> _exchangeHandler;
@@ -71,14 +72,9 @@ namespace BankSystem.Services
             if (person is Client)
             {
                 var client = person as Client;
-                string serClient;
-                if (FindClient(client) == null)
+                if (clientList.Contains(client) == false)
                 {
-                    serClient = JsonConvert.SerializeObject(client);
-                    using (var streamWriter = new StreamWriter($"{path}\\ListOfClients.txt"))
-                    {
-                        streamWriter.Write(JsonConvert.SerializeObject(serClient));
-                    }
+                    clientList.Add(client);
                 }
                 else
                 {
@@ -88,14 +84,9 @@ namespace BankSystem.Services
             else
             {
                 var employee = person as Employee;
-                string serEmployee;
-                if (FindEmployee(employee) == null)
+                if (employeeList.Contains(employee) == false)
                 {
-                    serEmployee = JsonConvert.SerializeObject(employee);
-                    using (var streamWriter = new StreamWriter($"{path}\\ListOfEmployees.txt"))
-                    {
-                        streamWriter.Write(JsonConvert.SerializeObject(serEmployee));
-                    }
+                    employeeList.Add(employee);
                 }
                 else
                 {
@@ -103,6 +94,60 @@ namespace BankSystem.Services
                 }
             }
         }
+
+        //public void Add(T person)
+        //{
+        //    if (person is Client)
+        //    {
+        //        var client = person as Client;
+        //        string serClient;
+        //        ///**/if (clientList.Contains(client) == false)
+        //        if (FindClient(client) == null)
+        //        {
+        //            ///**/clientList.Add(client);
+        //            serClient = JsonConvert.SerializeObject(client);
+        //            var directoryInfo = new DirectoryInfo(path);
+        //            if (!directoryInfo.Exists)
+        //            {
+        //                directoryInfo.Create();
+        //            }
+        //            using (var fileStream = new FileStream($"{path}\\ListOfClients.txt", FileMode.Append))
+        //            {
+        //                byte[] array = System.Text.Encoding.Default.GetBytes(serClient);
+        //                fileStream.Write(array, 0, array.Length);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine("Client with the same passport number is already registered.");
+        //        }
+        //    }
+        //    else
+        //    {
+        //        var employee = person as Employee;
+        //        string serEmployee;
+        //        ///**/if (employeeList.Contains(employee) == false)
+        //        if (FindEmployee(employee) == null)
+        //        {
+        //            ///**/employeeList.Add(employee);
+        //            serEmployee = JsonConvert.SerializeObject(employee);
+        //            var directoryInfo = new DirectoryInfo(path);
+        //            if (!directoryInfo.Exists)
+        //            {
+        //                directoryInfo.Create();
+        //            }
+        //            using (var fileStream = new FileStream($"{path}\\ListOfEmployees.txt", FileMode.Append))
+        //            {
+        //                byte[] array = System.Text.Encoding.Default.GetBytes(serEmployee);
+        //                fileStream.Write(array, 0, array.Length);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            Console.WriteLine("Employee with the same passport number is already registered.");
+        //        }
+        //    }
+        //}
 
         public void AddDictionaryToFile(Dictionary<string, List<Account>> dict, string dictPath)
         {
@@ -136,45 +181,69 @@ namespace BankSystem.Services
             if (person is Client)
             {
                 var client = person as Client;
-                List<Client> desClientList;
-                var clientListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder", "ListOfClients.txt");
 
-                var directoryInfo = new DirectoryInfo(clientListPath);
-                if (!directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                }
-
-                /*System.UnauthorizedAccessException: "Access to the path 
-                 * 'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfClients.txt' is denied."*/
-                using (var streamReader = new StreamReader(clientListPath))
-                {
-                    desClientList = JsonConvert.DeserializeObject<List<Client>>(streamReader.ReadToEnd());
-                }
-
-                return desClientList.Find(item => item.PassportId == person.PassportId);
+                return clientList.Find(item => item.PassportId == person.PassportId);
             }
             else
             {
                 var employee = person as Employee;
-                List<Employee> desEmployeeList;
-                var employeeListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice", "BankSystem", "BankSystem", "FileFolder", "ListOfEmployees.txt");
 
-                var directoryInfo = new DirectoryInfo(employeeListPath);
-                if (!directoryInfo.Exists)
-                {
-                    directoryInfo.Create();
-                }
-
-                /*System.UnauthorizedAccessException: "Access to the path 
-                 * 'C:\Users\Irina\source\repos\DexPractice\BankSystem\BankSystem\FileFolder\ListOfEmployees.txt' is denied."*/
-                using (var streamReader = new StreamReader(employeeListPath))
-                {
-                    desEmployeeList = JsonConvert.DeserializeObject<List<Employee>>(streamReader.ReadToEnd());
-                }
-
-                return desEmployeeList.Find(item => item.PassportId == person.PassportId);
+                return employeeList.Find(item => item.PassportId == person.PassportId);
             }
         }
+
+        //private IPerson Find<U>(U person) where U : IPerson
+        //{
+        //    if (person is Client)
+        //    {
+        //        var client = person as Client;
+        //        var desClientList = new List<Client>();
+        //        var clientListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice",
+        //            "BankSystem", "BankSystem", "FileFolder", "ListOfClients.txt");
+
+        //        var directoryInfo = new DirectoryInfo(path);
+        //        if (!directoryInfo.Exists)
+        //        {
+        //            directoryInfo.Create();
+        //        }
+
+        //        using (var fileStream = new FileStream($"{path}\\ListOfClients.txt", FileMode.Open))
+        //        {
+        //            byte[] array = new byte[fileStream.Length];
+        //            fileStream.Read(array, 0, array.Length);
+        //            if (!(array.Length == 0))
+        //            {
+        //                desClientList = JsonConvert.DeserializeObject<List<Client>>(Convert.ToString(array));
+        //            }
+        //        }
+
+        //        return desClientList.Find(item => item.PassportId == person.PassportId);
+        //    }
+        //    else
+        //    {
+        //        var employee = person as Employee;
+        //        var desEmployeeList = new List<Employee>();
+        //        var employeeListPath = Path.Combine("C:", "Users", "Irina", "source", "repos", "DexPractice",
+        //            "BankSystem", "BankSystem", "FileFolder", "ListOfEmployees.txt");
+
+        //        var directoryInfo = new DirectoryInfo(employeeListPath);
+        //        if (!directoryInfo.Exists)
+        //        {
+        //            directoryInfo.Create();
+        //        }
+
+        //        using (var fileStream = new FileStream($"{path}\\ListOfEmployees.txt", FileMode.Open))
+        //        {
+        //            byte[] array = new byte[fileStream.Length];
+        //            fileStream.Read(array, 0, array.Length);
+        //            if (!(array.Length == 0))
+        //            {
+        //                desEmployeeList = JsonConvert.DeserializeObject<List<Employee>>(Convert.ToString(array));
+        //            }
+        //        }
+
+        //        return desEmployeeList.Find(item => item.PassportId == person.PassportId);
+        //    }
+        //}
     }
 }

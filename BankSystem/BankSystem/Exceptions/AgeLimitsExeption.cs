@@ -2,7 +2,7 @@
 
 namespace BankSystem.Exceptions
 {
-    class AgeLimitsExeption : Exception
+    public class AgeLimitsExeption : Exception
     {
         public AgeLimitsExeption(string message) : base(message)
         {

@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using System;
 using System.IO;
 
 namespace Bank_Sistem.Services
@@ -13,25 +12,24 @@ namespace Bank_Sistem.Services
 
         public void AddDataToFile<T>(T obj)
         {
+            var myType = obj.GetType();
+            var properties = myType.GetProperties();
+
+            var text = "";
+            foreach (var property in properties)
+            {
+                text += $"{property.Name}: {property.GetValue(obj)},  ";
+            }
+
             if (!directoryInfo.Exists)
             {
                 directoryInfo.Create();
             }
-
-            var myType = obj.GetType();
-            var properties = myType.GetProperties();
-
-            var str = "";
-            foreach(var property in properties)
+            using (var fileStream = new FileStream($"{path}\\Report.txt", FileMode.Append))
             {
-                str += $"{property.Name}: {property.GetValue(obj)},  ";
-            }
-
-            using (var streamWriter = new FileStream($"{path}\\Report.txt", FileMode.Append))
-            {
-                var data = JsonConvert.SerializeObject(str);
-                byte[] dataArray = System.Text.Encoding.Default.GetBytes(data);
-                streamWriter.Write(dataArray);
+                var serText = JsonConvert.SerializeObject(text);
+                byte[] dataArray = System.Text.Encoding.Default.GetBytes(serText);
+                fileStream.Write(dataArray);
             }
         }
     }

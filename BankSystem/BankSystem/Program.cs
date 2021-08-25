@@ -49,14 +49,14 @@ namespace BankSystem
             //var desDict = clients.GetDictionaryFromFile(dictPath);
 
             //вывод свойств и значений объекта
-            var employee = fakeDataService.GenerateEmployee();
-            var client = fakeDataService.GenerateClient();
-            var account = new Account() { CurrencyType = new Rup(), CurrencyAmount = 10 };
+            //var employee = fakeDataService.GenerateEmployee();
+            //var client = fakeDataService.GenerateClient();
+            //var account = new Account() { CurrencyType = new Rup(), CurrencyAmount = 10 };
 
-            var expData = new ExportData();
-            expData.AddDataToFile<Employee>(employee);
-            expData.AddDataToFile<Client>(client);
-            expData.AddDataToFile<Account>(account);
+            //var expData = new ExportData();
+            //expData.AddDataToFile<Employee>(employee);
+            //expData.AddDataToFile<Client>(client);
+            //expData.AddDataToFile<Account>(account);
 
             Console.ReadKey();
         }
