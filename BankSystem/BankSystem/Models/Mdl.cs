@@ -5,7 +5,7 @@ namespace BankSystem.Services
     [Serializable]
     public class Mdl : Currency
     {
-        public Mdl() : base(0.056)
+        public Mdl() : base(Convert.ToDouble(GetCurencyRate("MDLUSD").Result))
         {
 
         }

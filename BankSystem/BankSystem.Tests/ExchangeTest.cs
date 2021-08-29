@@ -21,7 +21,7 @@ namespace BankSystem.Tests
         {
             //Arrange
             var exch = new Exchange();
-            var rup = new Rup() { Rate = 4 };
+            var rup = new Rub() { Rate = 4 };
             var mdl = new Mdl() { Rate = 5 };
 
             //Act
@@ -36,7 +36,7 @@ namespace BankSystem.Tests
         {
             //Arrange
             var exch = new Exchange();
-            var rup = new Rup() { Rate = 4 };
+            var rup = new Rub() { Rate = 4 };
             var mdl = new Mdl() { Rate = 5 };
 
             //Act

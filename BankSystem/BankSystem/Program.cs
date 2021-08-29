@@ -58,6 +58,8 @@ namespace BankSystem
             //expData.AddDataToFile<Client>(client);
             //expData.AddDataToFile<Account>(account);
 
+            var rub = new Rub();
+
             Console.ReadKey();
         }
     }
