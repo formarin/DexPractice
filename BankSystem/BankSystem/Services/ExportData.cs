@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using System.IO;
 
-namespace Bank_Sistem.Services
+namespace BankSystem.Services
 {
     public class ExportData
     {

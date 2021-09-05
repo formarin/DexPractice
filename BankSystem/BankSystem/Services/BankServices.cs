@@ -16,7 +16,7 @@ namespace BankSystem.Services
         public string path = Path.Combine("C:", "Users", "Irina", "source",
           "repos", "DexPractice", "FileFolder");
 
-        public delegate double exchangeHandler<Currency>(double MoneyAmount, Currency Curr1, Currency Curr2);
+        public delegate double exchangeHandler<Currency>(double moneyAmount, Currency currency1, Currency currency2);
         private exchangeHandler<Currency> _exchangeHandler;
         public void DelegateRegister(exchangeHandler<Currency> exchangeHandler)
         {
@@ -40,7 +40,7 @@ namespace BankSystem.Services
             if (donorAccount.CurrencyAmount >= sum)
             {
                 donorAccount.CurrencyAmount -= sum;
-                recipientAccount.CurrencyAmount += _exch.CurrExch<Currency, Currency>(sum, donorAccount.CurrencyType, recipientAccount.CurrencyType);
+                recipientAccount.CurrencyAmount += _exch.CurrencyExchange<Currency, Currency>(sum, donorAccount.CurrencyType, recipientAccount.CurrencyType);
             }
             else
             {

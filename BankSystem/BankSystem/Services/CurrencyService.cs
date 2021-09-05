@@ -1,9 +1,9 @@
-﻿using Bank_Sistem.Models;
+﻿using BankSystem.Models;
 using Newtonsoft.Json;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace Bank_Sistem.Services
+namespace BankSystem.Services
 {
     public class CurrencyService
     {

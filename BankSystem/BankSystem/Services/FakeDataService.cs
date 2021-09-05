@@ -2,7 +2,7 @@
 using Bogus;
 using System;
 
-namespace Bank_Sistem.Services
+namespace BankSystem.Services
 {
     public class FakeDataService
     {

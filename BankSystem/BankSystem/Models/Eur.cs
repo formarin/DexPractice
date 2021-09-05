@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BankSystem.Services;
+using System;
 
-namespace BankSystem.Services
+namespace BankSystem.Models
 {
     [Serializable]
     public class Eur : Currency
     {
-        public Eur() : base(Convert.ToDouble(GetCurencyRate("EURUSD").Result))
+        public Eur() : base(1.19/*Convert.ToDouble(GetCurencyRate("EURUSD").Result)*/)
         {
 
         }

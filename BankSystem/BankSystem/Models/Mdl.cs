@@ -1,11 +1,12 @@
-﻿using System;
+﻿using BankSystem.Services;
+using System;
 
-namespace BankSystem.Services
+namespace BankSystem.Models
 {
     [Serializable]
     public class Mdl : Currency
     {
-        public Mdl() : base(Convert.ToDouble(GetCurencyRate("MDLUSD").Result))
+        public Mdl() : base(0.056/*Convert.ToDouble(GetCurencyRate("MDLUSD").Result)*/)
         {
 
         }
